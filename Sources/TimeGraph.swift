@@ -81,7 +81,7 @@ import Cocoa
             graphSeries.append(GraphSeries(contents: [PlotCoordinate(x: 0.5, y: 2.0), PlotCoordinate(x: 1.01, y: 0.35)]))
         }
         
-        let context = NSGraphicsContext.current()?.cgContext
+        let context = NSGraphicsContext.current?.cgContext
         
         let totalWidth = dirtyRect.width
         let totalHeight = dirtyRect.height
@@ -199,7 +199,7 @@ import Cocoa
             let text = yAxisFormatter(value).toNSString()
             
             let textSize = text.size(withAttributes: nil)
-            text.draw(at: NSPoint(x: trailingEdge + labelMargin, y: y - (textSize.height / 2)), withAttributes: [NSForegroundColorAttributeName: labelColor])
+            text.draw(at: NSPoint(x: trailingEdge + labelMargin, y: y - (textSize.height / 2)), withAttributes: [NSAttributedStringKey.foregroundColor: labelColor])
             
             linePath.move(to: NSPoint(x: leadingEdge, y: y))
             linePath.line(to: NSPoint(x: trailingEdge, y: y))
@@ -213,7 +213,7 @@ import Cocoa
             let text = xAxisFormatter(value).toNSString()
             
             let textSize = text.size(withAttributes: nil)
-            text.draw(at: NSPoint(x: x - (textSize.width / 2.0), y: bottomEdge - textSize.height - labelMargin), withAttributes: [NSForegroundColorAttributeName: labelColor])
+            text.draw(at: NSPoint(x: x - (textSize.width / 2.0), y: bottomEdge - textSize.height - labelMargin), withAttributes: [NSAttributedStringKey.foregroundColor: labelColor])
             
             linePath.move(to: NSPoint(x: x, y: bottomEdge))
             linePath.line(to: NSPoint(x: x, y: topEdge))
