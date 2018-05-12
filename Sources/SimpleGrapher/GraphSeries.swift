@@ -8,10 +8,10 @@
 
 import AppKit
 
-class GraphSeries {
-    var color: NSColor = NSColor.white
-    var style: Style = .solid
-    var contents: [PlotCoordinate]
+public class GraphSeries {
+    public var color: NSColor = .white
+    public var style: Style = .solid
+    public var contents: [PlotCoordinate]
     
     init(contents: [PlotCoordinate]) {
         self.contents = contents
@@ -21,12 +21,12 @@ class GraphSeries {
         self.contents = [PlotCoordinate]()
     }
     
-    enum Style {
+    public enum Style {
         case solid
         case dashed
         case dotted
         
-        func getPattern() -> [CGFloat] {
+        public func getPattern() -> [CGFloat] {
             switch self {
             case .solid:
                 return [CGFloat]()
@@ -37,5 +37,4 @@ class GraphSeries {
             }
         }
     }
-
 }

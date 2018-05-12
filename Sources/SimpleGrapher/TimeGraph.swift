@@ -8,7 +8,7 @@
 
 import Cocoa
 
-@IBDesignable class TimeGraph: NSView {
+@IBDesignable public class TimeGraph: NSView {
     @IBInspectable var topMargin: CGFloat = 20
     @IBInspectable var bottomMargin: CGFloat = 20
     @IBInspectable var leftMargin: CGFloat = 20
@@ -75,7 +75,7 @@ import Cocoa
     var minY: Double = 0.0
     var maxY: Double = 0.0
     
-    override func draw(_ dirtyRect: NSRect) {
+    override public func draw(_ dirtyRect: NSRect) {
         if graphSeries.count == 0 {
             graphSeries.append(GraphSeries(contents: [PlotCoordinate(x: 0.0, y: 1.0), PlotCoordinate(x: 1.01, y: 2.0)]))
             graphSeries.append(GraphSeries(contents: [PlotCoordinate(x: 0.5, y: 2.0), PlotCoordinate(x: 1.01, y: 0.35)]))

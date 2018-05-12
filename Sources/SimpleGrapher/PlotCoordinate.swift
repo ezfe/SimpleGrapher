@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct PlotCoordinate {
+public struct PlotCoordinate {
     var x: Double
     var y: Double
     

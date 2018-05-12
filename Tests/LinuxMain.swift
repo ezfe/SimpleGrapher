@@ -1,6 +1,7 @@
 import XCTest
-@testable import SimpleGrapherTests
 
-XCTMain([
-     testCase(SimpleGrapherTests.allTests),
-])
+import SimpleGrapherTests
+
+var tests = [XCTestCaseEntry]()
+tests += SimpleGrapherTests.allTests()
+XCTMain(tests)
