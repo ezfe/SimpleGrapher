@@ -9,8 +9,13 @@
 import Foundation
 
 public struct PlotCoordinate {
-    var x: Double
-    var y: Double
+    public var x: Double
+    public var y: Double
+    
+    public init(_ x: Double, _ y: Double) {
+        self.x = x
+        self.y = y
+    }
     
     func calculateXPercentage(minX: Double, maxX: Double) -> Double {
         return x / (maxX - minX)

@@ -8,28 +8,30 @@
 
 import Cocoa
 
-@IBDesignable public class TimeGraph: NSView {
-    @IBInspectable var topMargin: CGFloat = 20
-    @IBInspectable var bottomMargin: CGFloat = 20
-    @IBInspectable var leftMargin: CGFloat = 20
-    @IBInspectable var rightMargin: CGFloat = 25
-    @IBInspectable var labelMargin: CGFloat = 8
+public class TimeGraph: NSView {
+    public var topMargin: CGFloat = 20
+    public var bottomMargin: CGFloat = 20
+    public var leftMargin: CGFloat = 20
+    public var rightMargin: CGFloat = 25
+    public var labelMargin: CGFloat = 8
     
-    @IBInspectable var horizontalLines: Int = 5
-    @IBInspectable var verticalLines: Int = 0
+    public var horizontalLines: Int = 5
+    public var verticalLines: Int = 0
     
-    @IBInspectable var startColor: NSColor = NSColor(calibratedRed: 0, green: 128, blue: 255, alpha: 1.0)
-    @IBInspectable var endColor: NSColor = NSColor(calibratedRed: 0, green: 0, blue: 255, alpha: 1.0)
-    @IBInspectable var primaryLineColor: NSColor = NSColor.white
-    @IBInspectable var secondaryLineColor: NSColor = NSColor(white: 1.0, alpha: 0.3)
-    @IBInspectable var labelColor: NSColor = NSColor.white
+    public var startColor: NSColor = NSColor(calibratedRed: 0, green: 128, blue: 255, alpha: 1.0)
+    public var endColor: NSColor = NSColor(calibratedRed: 0, green: 0, blue: 255, alpha: 1.0)
+    public var primaryLineColor: NSColor = NSColor.white
+    public var secondaryLineColor: NSColor = NSColor(white: 1.0, alpha: 0.3)
+    public var labelColor: NSColor = NSColor.white
     
-    @IBInspectable var cumulative: Bool = true
+    public var cumulative: Bool = true
     
-    @IBInspectable var circlePoints: Bool = true
-    @IBInspectable var connectPoints: Bool = true
+    @available(macOS, unavailable, message: "Specificy circled with the series")
+    public var circlePoints: Bool = true
+    @available(macOS, unavailable, message: "Specificy connectivity with the series")
+    public var connectPoints: Bool = true
     
-    var xAxisFormatter: (Double) -> String = { (number) in
+    public var xAxisFormatter: (Double) -> String = { (number) in
         let nf = NumberFormatter()
         nf.numberStyle = .decimal
         nf.maximumFractionDigits = 3
@@ -37,7 +39,7 @@ import Cocoa
         return nf.string(from: NSNumber(value: number)) ?? "?"
     }
     
-    var yAxisFormatter: (Double) -> String = { (number) in
+    public var yAxisFormatter: (Double) -> String = { (number) in
         let nf = NumberFormatter()
         nf.numberStyle = .decimal
         nf.maximumFractionDigits = 3
@@ -45,7 +47,7 @@ import Cocoa
         return nf.string(from: NSNumber(value: number)) ?? "?"
     }
     
-    var graphSeries = Array<GraphSeries>() {
+    public var graphSeries = Array<GraphSeriesProtocol>() {
         didSet {
             minX = graphSeries.first?.contents.first?.x ?? 0.0
             for series in graphSeries {
@@ -76,11 +78,6 @@ import Cocoa
     var maxY: Double = 0.0
     
     override public func draw(_ dirtyRect: NSRect) {
-        if graphSeries.count == 0 {
-            graphSeries.append(GraphSeries(contents: [PlotCoordinate(x: 0.0, y: 1.0), PlotCoordinate(x: 1.01, y: 2.0)]))
-            graphSeries.append(GraphSeries(contents: [PlotCoordinate(x: 0.5, y: 2.0), PlotCoordinate(x: 1.01, y: 0.35)]))
-        }
-        
         let context = NSGraphicsContext.current?.cgContext
         
         let totalWidth = dirtyRect.width
@@ -140,50 +137,46 @@ import Cocoa
         
         /* Main Line */
         
-        if connectPoints {
-            for series in graphSeries {
-                series.color.setFill()
-                series.color.setStroke()
+        for series in graphSeries where series.connectPoints {
+            series.color.setFill()
+            series.color.setStroke()
 
-                let graphPath = NSBezierPath()
-                
-                guard let first = series.contents.first else {
-                    Swift.print("No first...")
-                    return
-                }
-                
-                let fpoint = first.point(xOffset: leadingEdge, yOffset: bottomEdge, workingWidth: workingWidth, workingHeight: workingHeight, minX: minX, maxX: maxX, minY: minY, maxY: maxY)
-                graphPath.move(to: fpoint)
-                for point in series.contents.dropFirst() {
-                    let nspoint = point.point(xOffset: leadingEdge, yOffset: bottomEdge, workingWidth: workingWidth, workingHeight: workingHeight, minX: minX, maxX: maxX, minY: minY, maxY: maxY)
-                    graphPath.line(to: nspoint)
-                }
-                
-                if series.style != .solid {
-                    graphPath.setLineDash(series.style.getPattern(), count: series.style.getPattern().count, phase: 0)
-                }
-                graphPath.lineWidth = 2.0
-                graphPath.stroke()
+            let graphPath = NSBezierPath()
+            
+            guard let first = series.contents.first else {
+                Swift.print("No first...")
+                return
             }
+            
+            let fpoint = first.point(xOffset: leadingEdge, yOffset: bottomEdge, workingWidth: workingWidth, workingHeight: workingHeight, minX: minX, maxX: maxX, minY: minY, maxY: maxY)
+            graphPath.move(to: fpoint)
+            for point in series.contents.dropFirst() {
+                let nspoint = point.point(xOffset: leadingEdge, yOffset: bottomEdge, workingWidth: workingWidth, workingHeight: workingHeight, minX: minX, maxX: maxX, minY: minY, maxY: maxY)
+                graphPath.line(to: nspoint)
+            }
+            
+            if series.style != .solid {
+                graphPath.setLineDash(series.style.getPattern(), count: series.style.getPattern().count, phase: 0)
+            }
+            graphPath.lineWidth = 2.0
+            graphPath.stroke()
         }
         
         /* Point Circles */
         
-        if circlePoints {
-            for series in graphSeries {
-                series.color.setFill()
-                series.color.setStroke()
+        for series in graphSeries where series.circlePoints {
+            series.color.setFill()
+            series.color.setStroke()
 
-                for point in series.contents {
-                    var nspoint = point.point(xOffset: leadingEdge, yOffset: bottomEdge, workingWidth: workingWidth, workingHeight: workingHeight, minX: minX, maxX: maxX, minY: minY, maxY: maxY)
-                    let radius: CGFloat = 2.5
-                    
-                    nspoint.x -= radius
-                    nspoint.y -= radius
-                    
-                    let circle = NSBezierPath(ovalIn: CGRect(origin: nspoint, size: CGSize(width: 2 * radius, height: 2 * radius)))
-                    circle.fill()
-                }
+            for point in series.contents {
+                var nspoint = point.point(xOffset: leadingEdge, yOffset: bottomEdge, workingWidth: workingWidth, workingHeight: workingHeight, minX: minX, maxX: maxX, minY: minY, maxY: maxY)
+                let radius: CGFloat = 2.5
+                
+                nspoint.x -= radius
+                nspoint.y -= radius
+                
+                let circle = NSBezierPath(ovalIn: CGRect(origin: nspoint, size: CGSize(width: 2 * radius, height: 2 * radius)))
+                circle.fill()
             }
         }
         
@@ -199,7 +192,7 @@ import Cocoa
             let text = yAxisFormatter(value).toNSString()
             
             let textSize = text.size(withAttributes: nil)
-            text.draw(at: NSPoint(x: trailingEdge + labelMargin, y: y - (textSize.height / 2)), withAttributes: [NSAttributedStringKey.foregroundColor: labelColor])
+            text.draw(at: NSPoint(x: trailingEdge + labelMargin, y: y - (textSize.height / 2)), withAttributes: [NSAttributedString.Key.foregroundColor: labelColor])
             
             linePath.move(to: NSPoint(x: leadingEdge, y: y))
             linePath.line(to: NSPoint(x: trailingEdge, y: y))
@@ -213,7 +206,7 @@ import Cocoa
             let text = xAxisFormatter(value).toNSString()
             
             let textSize = text.size(withAttributes: nil)
-            text.draw(at: NSPoint(x: x - (textSize.width / 2.0), y: bottomEdge - textSize.height - labelMargin), withAttributes: [NSAttributedStringKey.foregroundColor: labelColor])
+            text.draw(at: NSPoint(x: x - (textSize.width / 2.0), y: bottomEdge - textSize.height - labelMargin), withAttributes: [NSAttributedString.Key.foregroundColor: labelColor])
             
             linePath.move(to: NSPoint(x: x, y: bottomEdge))
             linePath.line(to: NSPoint(x: x, y: topEdge))
